@@ -1,0 +1,47 @@
+---
+  - name: sample book
+    hosts: all
+    remote_user: ubuntu
+    become: true
+    tasks:
+    - name: installing aws cli
+      apt:
+        name: awscli
+
+    - name: installing jq
+      apt:
+        name: jq
+
+    - name: aws secret manager
+      shell: |
+          touch /home/ubuntu/.ssh/id_rsa 
+          aws secretsmanager get-secret-value --secret-id ssh-key-for-git --region ap-northeast-1 --query 'SecretString' --output text > /home/ubuntu/.ssh/id_rsa
+          chmod 600 /home/ubuntu/.ssh/id_rsa 
+          # aws secretsmanager get-secret-value --secret-id pvt-keys --region ap-northeast-1 | jq ".SecretString" | sed 's/[\]//g' | sed 's/.//' | sed  's/.$//' | jq ".keys" | sed 's/"//g' >> /home/ubuntu/.ssh/id_rsa
+
+      
+
+    - name: Clone a public git repository
+      git:
+        repo: git@github.com:Shubham-jangidd/JapurKitchen.git
+        accept_hostkey: yes
+        # repo: 'https://github.com/Shubham-jangidd/JapurKitchen.git'
+        key_file: /home/ubuntu/.ssh/id_rsa
+        dest: /home/ubuntu/JaipurKitchen
+      
+
+
+    - name: installing the requirements
+      shell: |
+          # git clone https://github.com/Shubham-jangidd/JapurKitchen.git
+          cd /home/ubuntu/JaipurKitchen
+          # sudo apt install -y python3-virtualenv
+          sudo apt -y install python3-pip
+          # virtualenv env
+          # source env/bin/activate
+          pip3 install -r requirements.txt
+          python3 manage.py migrate
+          nohup python3 manage.py runserver 0.0.0.0:8000 &
+          sudo rm -rf /home/ubuntu/.ssh/id_rsa
+
+      

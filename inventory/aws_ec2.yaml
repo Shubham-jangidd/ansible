@@ -1,0 +1,8 @@
+
+plugin: amazon.aws.aws_ec2
+aws_access_key: AKIA4BE7DQB5UB5UGPR6
+aws_secret_key: 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
+hostnames:
+  - dns-name
+
+
