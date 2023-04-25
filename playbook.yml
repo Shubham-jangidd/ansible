@@ -1,6 +1,6 @@
 ---
   - name: sample book
-    hosts: all
+    hosts: localhost
     remote_user: ubuntu
     become: true
     tasks:
